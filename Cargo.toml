@@ -1,0 +1,7 @@
+[package]
+name = "teapot"
+version = "0.1.0"
+authors = ["takakawa <takakawa@163.com>", "Matthias Endler <matthias@endler.dev>"]
+edition = "2018"
+
+[dependencies]
