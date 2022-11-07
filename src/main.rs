@@ -3,31 +3,37 @@ use std::io::{Read, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::thread;
 
-fn handle_write(mut stream: &TcpStream) -> io::Result<usize> {
+fn handle_write(mut stream: &TcpStream) -> io::Result<()> {
     let resp = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html><body>OK</body></html>\r\n";
-    stream.write(resp)
+    stream.write(resp)?;
+    Ok(())
 }
 
-fn handle_read(mut stream: &TcpStream) -> io::Result<usize> {
+fn handle_read(mut stream: &TcpStream) -> io::Result<()> {
     let mut buf = [0u8; 4096];
-    match stream.read(&mut buf) {
-        Ok(o) => {
-            let req_str = String::from_utf8_lossy(&buf);
-            println!("{}", req_str);
-            Ok(o)
-        }
-        Err(e) => {
-            println!("Unable to read stream: {}", e);
-            stream.shutdown(Shutdown::Both)?;
-            Err(e)
+    loop {
+        match stream.read(&mut buf) {
+            Ok(o) => {
+                println!("{}", &String::from_utf8_lossy(&buf));
+                if o < 4096 {
+                    break;
+                }
+            }
+            Err(e) => {
+                println!("Unable to read stream: {}", e);
+                stream.shutdown(Shutdown::Both)?;
+                return Err(e);
+            }
         }
     }
+    Ok(())
 }
 
 fn handle_client(stream: TcpStream) -> io::Result<()> {
     loop {
         handle_read(&stream)?;
         handle_write(&stream)?;
+        stream.shutdown(Shutdown::Both)?;
     }
 }
 fn main() -> io::Result<()> {
