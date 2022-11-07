@@ -1,4 +1,4 @@
-# teapot
+# 🫖 teapot
 
 A super simple dummy server for testing HTTP clients.
 Zero dependencies.
