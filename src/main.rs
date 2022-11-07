@@ -1,21 +1,24 @@
-use std::io;
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 use std::net::{Shutdown, TcpListener, TcpStream};
 use std::thread;
 
+const READ_BUF_SIZE: usize = 512;
+
+const TEAPOT_RESPONSE: &[u8; 64] =
+    b"HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nOK\r\n";
+
 fn handle_write(mut stream: &TcpStream) -> io::Result<()> {
-    let resp = b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html><body>OK</body></html>\r\n";
-    stream.write(resp)?;
+    stream.write_all(TEAPOT_RESPONSE)?;
     Ok(())
 }
 
 fn handle_read(mut stream: &TcpStream) -> io::Result<()> {
-    let mut buf = [0u8; 4096];
+    let mut buf = [0u8; READ_BUF_SIZE];
     loop {
         match stream.read(&mut buf) {
-            Ok(o) => {
+            Ok(bytes_read) => {
                 println!("{}", &String::from_utf8_lossy(&buf));
-                if o < 4096 {
+                if bytes_read < READ_BUF_SIZE {
                     break;
                 }
             }
@@ -38,9 +41,9 @@ fn handle_client(stream: TcpStream) -> io::Result<()> {
 }
 fn main() -> io::Result<()> {
     // Load port from env; default to 8080
-    let port = std::env::var("PORT").unwrap_or("8080".to_string());
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
     let listener = TcpListener::bind(format!("localhost:{port}"))?;
-    println!("Listening for on port {}", port);
+    println!("🫖 teapot listening for on port {}...", port);
 
     for stream in listener.incoming() {
         match stream {
