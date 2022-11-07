@@ -6,7 +6,7 @@ Zero dependencies.
 ## Installation
 
 ```bash
-cargo install https://github.com/mre/teapot.git
+cargo install --git https://github.com/mre/teapot.git
 ```
 
 ## Usage
