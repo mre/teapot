@@ -15,6 +15,7 @@ cargo install --git https://github.com/mre/teapot.git
 teapot
 ```
 
+This will always respond with a `200`; no matter what.  
 You can configure the port with the `PORT` environment variable.
 
 ```
