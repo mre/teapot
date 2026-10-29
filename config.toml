@@ -1,0 +1,11 @@
+[[route]]
+matches = "/"
+response_string = "OK"
+
+[[route]]
+matches = "/{usr}"
+response_string = "Hello {{name}}"
+template_vars = { name = "world" }
+
+[fallback]
+response_code = "teapot"
